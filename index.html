@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Superlight — 全面屏极简浏览器</title>
+  <meta name="description" content="Superlight Browser：Windows 上的全面屏极简浏览器。整窗是网页，悬浮球管一切；无扩展商店、无账号云同步、无信息流。" />
+  <meta name="theme-color" content="#e8f0ec" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg0: #e8f0ec;
+      --bg1: #f4f7f5;
+      --ink: #1c1e21;
+      --ink-dim: #5b6066;
+      --accent: #158457;
+      --accent-deep: #0f6a45;
+      --accent-fill: #d8eee3;
+      --line: rgba(28, 30, 33, 0.12);
+      --glass: rgba(255, 255, 255, 0.55);
+      --max: 68rem;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: Manrope, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--bg1);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--accent); text-underline-offset: 0.18em; }
+    a:hover { color: var(--accent-deep); }
+
+    /* ---- Hero: full-bleed atmosphere ---- */
+    .hero {
+      position: relative;
+      min-height: 100svh;
+      display: grid;
+      align-items: end;
+      overflow: hidden;
+      background:
+        radial-gradient(ellipse 90% 70% at 78% 28%, rgba(21, 132, 87, 0.22), transparent 55%),
+        radial-gradient(ellipse 70% 50% at 12% 80%, rgba(120, 160, 190, 0.18), transparent 50%),
+        linear-gradient(165deg, #d9e8e0 0%, var(--bg0) 42%, #eef2f0 100%);
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(28, 30, 33, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(28, 30, 33, 0.035) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, #000 20%, transparent 75%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 2;
+      width: min(100% - 2.5rem, var(--max));
+      margin: 0 auto;
+      padding: 5.5rem 0 4.5rem;
+      display: grid;
+      gap: 1.25rem;
+      max-width: 34rem;
+    }
+
+    .brand {
+      font-family: Syne, Manrope, sans-serif;
+      font-weight: 800;
+      font-size: clamp(3rem, 9vw, 5.25rem);
+      letter-spacing: -0.04em;
+      line-height: 0.95;
+      color: var(--ink);
+    }
+    .brand span {
+      display: block;
+      font-size: 0.28em;
+      font-weight: 600;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.55rem;
+    }
+
+    .lede {
+      font-size: clamp(1.15rem, 2.4vw, 1.4rem);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      max-width: 22ch;
+    }
+    .support {
+      color: var(--ink-dim);
+      font-size: 1.02rem;
+      max-width: 36ch;
+    }
+
+    .cta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem 1rem;
+      align-items: center;
+      margin-top: 0.5rem;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      padding: 0.85rem 1.35rem;
+      border-radius: 10px;
+      font: inherit;
+      font-weight: 700;
+      font-size: 0.98rem;
+      text-decoration: none;
+      border: 1px solid transparent;
+      transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: var(--accent-deep);
+      color: #fff;
+    }
+    .btn-ghost {
+      background: var(--glass);
+      color: var(--ink);
+      border-color: var(--line);
+      backdrop-filter: blur(10px);
+    }
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent-deep); }
+    .meta {
+      font-size: 0.88rem;
+      color: var(--ink-dim);
+    }
+
+    /* Product silhouette — dominant visual plane */
+    .stage {
+      position: absolute;
+      z-index: 1;
+      inset: 8% 4% 18% 38%;
+      pointer-events: none;
+    }
+    .window {
+      position: absolute;
+      inset: 8% 6% 10% 4%;
+      border-radius: 14px;
+      background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.28));
+      border: 1px solid rgba(255, 255, 255, 0.85);
+      box-shadow:
+        0 28px 64px rgba(40, 55, 80, 0.16),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      overflow: hidden;
+      transform: perspective(1200px) rotateY(-8deg) rotateX(4deg);
+      animation: float-win 9s ease-in-out infinite;
+    }
+    .window::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 30% 25%, rgba(21, 132, 87, 0.18), transparent 40%),
+        linear-gradient(180deg, #f7faf8 0%, #e4eee8 100%);
+    }
+    .window::after {
+      content: "";
+      position: absolute;
+      left: 10%;
+      right: 10%;
+      top: 18%;
+      height: 58%;
+      border-radius: 8px;
+      background:
+        linear-gradient(90deg, transparent 0 12%, rgba(28, 30, 33, 0.06) 12% 13%, transparent 13%),
+        repeating-linear-gradient(
+          180deg,
+          rgba(28, 30, 33, 0.05) 0 10px,
+          transparent 10px 22px
+        );
+      opacity: 0.7;
+    }
+    .ball {
+      position: absolute;
+      width: clamp(2.6rem, 4.2vw, 3.4rem);
+      height: clamp(2.6rem, 4.2vw, 3.4rem);
+      border-radius: 50%;
+      right: 14%;
+      bottom: 22%;
+      background:
+        radial-gradient(circle at 35% 30%, #7ad4a8, var(--accent) 55%, var(--accent-deep));
+      box-shadow:
+        0 10px 24px rgba(21, 132, 87, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.45);
+      animation: float-ball 5.5s ease-in-out infinite;
+    }
+    .ball::after {
+      content: "";
+      position: absolute;
+      inset: 22%;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255, 255, 255, 0.35);
+    }
+
+    @keyframes float-win {
+      0%, 100% { transform: perspective(1200px) rotateY(-8deg) rotateX(4deg) translateY(0); }
+      50% { transform: perspective(1200px) rotateY(-6deg) rotateX(3deg) translateY(-10px); }
+    }
+    @keyframes float-ball {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
+    @media (max-width: 860px) {
+      .stage {
+        inset: auto 5% 42% 5%;
+        height: 38vh;
+      }
+      .hero-inner {
+        padding-top: 48vh;
+        max-width: none;
+      }
+      .window { transform: none; animation: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .window, .ball { animation: none; }
+      .btn:hover { transform: none; }
+    }
+
+    /* ---- Sections ---- */
+    main { background: var(--bg1); }
+    section {
+      width: min(100% - 2.5rem, var(--max));
+      margin: 0 auto;
+      padding: 4.5rem 0;
+      border-top: 1px solid var(--line);
+    }
+    section:first-of-type { border-top: 0; }
+    .sec-kicker {
+      font-family: Syne, Manrope, sans-serif;
+      font-weight: 700;
+      font-size: 0.78rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.75rem;
+    }
+    .sec-title {
+      font-family: Syne, Manrope, sans-serif;
+      font-weight: 700;
+      font-size: clamp(1.6rem, 3vw, 2.1rem);
+      letter-spacing: -0.03em;
+      margin-bottom: 0.6rem;
+    }
+    .sec-lead {
+      color: var(--ink-dim);
+      max-width: 48ch;
+      margin-bottom: 2rem;
+    }
+
+    .points {
+      list-style: none;
+      display: grid;
+      gap: 1.35rem;
+      max-width: 40rem;
+    }
+    .points li {
+      display: grid;
+      grid-template-columns: 2.5rem 1fr;
+      gap: 0.85rem;
+      align-items: start;
+    }
+    .points strong {
+      display: block;
+      font-size: 1.05rem;
+      margin-bottom: 0.15rem;
+    }
+    .points p { color: var(--ink-dim); font-size: 0.98rem; }
+    .mark {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 10px;
+      background: var(--accent-fill);
+      color: var(--accent);
+      display: grid;
+      place-items: center;
+      font-family: Syne, sans-serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .req {
+      display: grid;
+      gap: 0.55rem;
+      color: var(--ink-dim);
+      font-size: 0.98rem;
+    }
+    .req code {
+      font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+      font-size: 0.9em;
+      background: rgba(21, 132, 87, 0.08);
+      padding: 0.1em 0.35em;
+      border-radius: 4px;
+      color: var(--ink);
+    }
+
+    footer {
+      border-top: 1px solid var(--line);
+      padding: 2rem 0 2.75rem;
+      color: var(--ink-dim);
+      font-size: 0.9rem;
+    }
+    footer .wrap {
+      width: min(100% - 2.5rem, var(--max));
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem 1.5rem;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+    footer strong {
+      font-family: Syne, Manrope, sans-serif;
+      color: var(--ink);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="stage" aria-hidden="true">
+      <div class="window"></div>
+      <div class="ball"></div>
+    </div>
+    <div class="hero-inner">
+      <h1 class="brand"><span>Browser</span>Superlight</h1>
+      <p class="lede">整窗都是网页。</p>
+      <p class="support">Windows 全面屏浏览器：触摸优化，极轻启动，严格控制内存与硬盘占用。</p>
+      <div class="cta">
+        <a class="btn btn-primary" id="download" href="https://github.com/DYD-Tech/superlight-browser-site/releases/latest/download/SuperlightBrowser-Setup.msi">下载 Windows 安装包</a>
+        <a class="btn btn-ghost" href="#features">了解更多</a>
+      </div>
+      <p class="meta">当前版本 <strong id="version">0.3.1</strong> · 需 WebView2 Runtime · x64 （Win10/11 自带）</p>
+    </div>
+  </header>
+
+  <main>
+    <section id="features">
+      <p class="sec-kicker">Product</p>
+      <h2 class="sec-title">少做一点，把屏留给网页</h2>
+      <p class="sec-lead">Superlight 不做「又一个 Chrome」。不被定义，重新定义。</p>
+      <ul class="points">
+        <li>
+          <span class="mark" aria-hidden="true">1</span>
+          <div>
+            <strong>全面屏 + 悬浮球</strong>
+            <p>没有系统标题栏，也没有常驻工具栏。工具行按需出现；后退、新标签、关标签可以在球上手势完成。</p>
+          </div>
+        </li>
+        <li>
+          <span class="mark" aria-hidden="true">2</span>
+          <div>
+            <strong>多开与省内存</strong>
+            <p>多窗口、多标签；后台页降内存、闲置可挂起。磁盘缓存有上限，本机数据可控。</p>
+          </div>
+        </li>
+        <li>
+          <span class="mark" aria-hidden="true">3</span>
+          <div>
+            <strong>鼠触两套语义</strong>
+            <p>鼠标拖球移窗；触摸交给网页自己。分屏、书签、历史、广告拦截、旁路 AI 面板都在，但不堆云账号。</p>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <section id="install">
+      <p class="sec-kicker">Install</p>
+      <h2 class="sec-title">安装说明</h2>
+      <p class="sec-lead">首装请用页面上的向导安装包。新版本通过 GitHub Releases 发布；应用内可检查更新。</p>
+      <div class="req">
+        <p>系统：Windows 10 / 11，64 位</p>
+        <p>运行时：已安装 <a href="https://developer.microsoft.com/microsoft-edge/webview2/" rel="noopener">WebView2 Evergreen Runtime</a>（多数 Win10/11 已有）</p>
+        <p>安装包与更新均来自本仓库的 <a href="https://github.com/DYD-Tech/superlight-browser-site/releases">Releases</a></p>
+      </div>
+      <div class="cta" style="margin-top: 1.75rem;">
+        <a class="btn btn-primary" href="https://github.com/DYD-Tech/superlight-browser-site/releases/latest/download/SuperlightBrowser-Setup.msi">下载安装包</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <p><strong>Superlight</strong> · 全面屏极简浏览器</p>
+      <p>本站公开托管安装包与更新</p>
+    </div>
+  </footer>
+</body>
+</html>

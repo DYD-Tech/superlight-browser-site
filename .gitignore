@@ -1,0 +1,12 @@
+# OS / editor
+Thumbs.db
+Desktop.ini
+.DS_Store
+.vs/
+.idea/
+*.user
+
+# Accidental local build leftovers
+*.pdb
+*.ilk
+*.obj
