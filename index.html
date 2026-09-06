@@ -349,7 +349,7 @@
         <a class="btn btn-primary" id="download" href="https://github.com/DYD-Tech/superlight-browser-site/releases/latest/download/SuperlightBrowser-Setup.msi">下载 Windows 安装包</a>
         <a class="btn btn-ghost" href="#features">了解更多</a>
       </div>
-      <p class="meta">当前版本 <strong id="version">0.3.1</strong> · 需 WebView2 Runtime · x64 （Win10/11 自带）</p>
+      <p class="meta">当前版本 <strong id="version">1.0.0</strong> · 需 WebView2 Runtime · x64 （Win10/11 自带）</p>
     </div>
   </header>
 
@@ -404,5 +404,19 @@
       <p>本站公开托管安装包与更新</p>
     </div>
   </footer>
+  <script>
+    (function () {
+      var el = document.getElementById("version");
+      if (!el) return;
+      fetch("https://api.github.com/repos/DYD-Tech/superlight-browser-site/releases/latest")
+        .then(function (r) { return r.ok ? r.json() : Promise.reject(); })
+        .then(function (data) {
+          var tag = (data && data.tag_name) ? String(data.tag_name) : "";
+          if (!tag) return;
+          el.textContent = tag.replace(/^v/i, "");
+        })
+        .catch(function () { /* keep fallback in HTML */ });
+    })();
+  </script>
 </body>
 </html>
